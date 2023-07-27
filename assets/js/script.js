@@ -24,49 +24,45 @@ function renderSearchHistory() {
     recentContainer.append(recentInput);
   });
 };
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch source fopr try and catch function
+async function fetchWeather(city) {
+  try {
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`;
+    const response = await fetch(apiUrl);
+    if (response.ok) {
+      const data = await response.json();
+      const nameValue = data.name;
+      const tempValue = data.main.temp;
+      const humidityValue = data.main.humidity;
+      const windValue = data.wind.speed;
+      const icon = data.weather[0].icon;
+      const weatherURL = `https://openweathermap.org/img/wn/${icon}.png`;
 
-  async function fetchWeather(city) {
-    try {
-      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`;
-      const response = await fetch(apiUrl);
-      if (response.ok) {
-        const data = await response.json();
-        const nameValue = data.name;
-        const tempValue = data.main.temp;
-        const humidityValue = data.main.humidity;
-        const windValue = data.wind.speed;
-        const icon = data.weather[0].icon;
-        const weatherURL = `https://openweathermap.org/img/wn/${icon}.png`;
-  
-        // format for my date
-        const currentDate = new Date();
-        const formattedDate = `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
-  
-        // updates with date
-        const cityDateIcon = $(".city-date-icon");
-        cityDateIcon.html(
-          `${nameValue} (${formattedDate}) <img src="${weatherURL}"/>`
-        );
-  
-        $(".temp").html(`Temperature: ${tempValue} °F`);
-        $(".humidity").html(`Humidity: ${humidityValue}%`);
-        $(".wind").html(`Wind Speed: ${windValue} MPH`);
-  
-        $(".current-weather").removeClass("hide");
-      } else {
-        alert("Error: " + response.statusText);
-      }
-      // saves city
-      if (!recentSearchHistory.includes(city)) {
-        recentSearchHistory.push(city);
-        localStorage.setItem("recentSearchHistory", JSON.stringify(recentSearchHistory));
-        renderSearchHistory();
-      }
-    } catch (error) {
-      console.error("Error fetching weather data:", error);
+      const currentDate = new Date();
+      const formattedDate = `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
+
+      const cityDateIcon = $(".city-date-icon");
+      cityDateIcon.html(
+        `${nameValue} (${formattedDate}) <img src="${weatherURL}"/>`
+      );
+
+      $(".temp").html(`Temperature: ${tempValue} °F`);
+      $(".humidity").html(`Humidity: ${humidityValue}%`);
+      $(".wind").html(`Wind Speed: ${windValue} MPH`);
+
+      $(".current-weather").removeClass("hide");
+    } else {
+      alert("Error: " + response.statusText);
     }
-  };
-
+    if (!recentSearchHistory.includes(city)) {
+      recentSearchHistory.push(city);
+      localStorage.setItem("recentSearchHistory", JSON.stringify(recentSearchHistory));
+      renderSearchHistory();
+    }
+  } catch (error) {
+    console.error("Error fetching weather data:", error);
+  }
+}
   // event listener for search
   searchBtn.addEventListener("click", (event) => {
     event.preventDefault();
