@@ -9,14 +9,18 @@
 </head>
 <body>
     <main id="container">
-    <h1>Weather Dashboard</1>
-    <form id="search-form">
-        <input type="text" placeholder="Enter a city's name!" id="city-input">
-        <button type="submit">Confirm</button>
-    </form>
+        <h1>Weather Dashboard</h1>
+        <form id="search-form">
+            <input type="text" placeholder="Enter a city's name!" id="search-input">
+            <button type="submit" id="search-btn">Confirm</button>
+        </form>
 
     <div>
         <h2> Current Weather</h2>
+        <div class="city-date-icon"></div>
+            <div class="temp"></div>
+            <div class="humidity"></div>
+            <div class="wind"></div>
     </div>
     <div>
         <h2> Forcasted Weather</h2>
