@@ -11,22 +11,21 @@ const clearBtn = $("#clear-history");
 const recentSearchHistory = JSON.parse(localStorage.getItem("recentSearchHistory") || "[]");
 
 function renderSearchHistory() {
-    recentContainer.empty();
-  
-    recentSearches.forEach((city) => {
-      const recentInput = $("<input>").attr({
-        type: "text",
-        readonly: true,
-        class: "form-control-lg text-black",
-        value: city,
-      });
-      recentInput.on("click", () => fetchWeatherWeather(city));
-      recentContainer.append(recentInput);
+  recentContainer.empty();
+
+  recentSearchHistory.forEach((city) => {
+    const recentInput = $("<input>").attr({
+      type: "text",
+      readonly: true,
+      class: "form-control-lg text-black",
+      value: city,
     });
-  }
+    recentInput.on("click", () => fetchWeather(city)); 
+    recentContainer.append(recentInput);
+  });
+};
 
   async function fetchWeather(city) {
-    // source for try and catch block https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch
     try {
       const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`;
       const response = await fetch(apiUrl);
@@ -39,9 +38,14 @@ function renderSearchHistory() {
         const icon = data.weather[0].icon;
         const weatherURL = `https://openweathermap.org/img/wn/${icon}.png`;
   
+        // format for my date
+        const currentDate = new Date();
+        const formattedDate = `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
+  
+        // updates with date
         const cityDateIcon = $(".city-date-icon");
         cityDateIcon.html(
-          `${nameValue} ${moment().format(" (M/DD/YYYY) ")} <img src="${weatherURL}"/>`
+          `${nameValue} (${formattedDate}) <img src="${weatherURL}"/>`
         );
   
         $(".temp").html(`Temperature: ${tempValue} °F`);
@@ -52,19 +56,43 @@ function renderSearchHistory() {
       } else {
         alert("Error: " + response.statusText);
       }
+      // saves city
+      if (!recentSearchHistory.includes(city)) {
+        recentSearchHistory.push(city);
+        localStorage.setItem("recentSearchHistory", JSON.stringify(recentSearchHistory));
+        renderSearchHistory();
+      }
     } catch (error) {
       console.error("Error fetching weather data:", error);
     }
   };
 
-  // event listener 
+  // event listener for search
   searchBtn.addEventListener("click", (event) => {
     event.preventDefault();
     const city = searchInput.value.trim();
+    console.log("search btn clicked");
     if (city !== "") {
       fetchWeather(city);
       searchInput.value = "";
     }
   });
+
+  // event listener to click on recents
+  recentContainer.on("click", "input", function () {
+    const city = $(this).val();
+    fetchWeather(city);
+  });
+  
+  // event listener to clear search history
+  clearBtn.on("click", function () {
+    localStorage.removeItem("recentSearchHistory");
+    recentSearchHistory.length = 0;
+    renderSearchHistory();
+  });
+
+  console.log("Recent Search History:", recentSearchHistory);
+  console.log("Stored Search History:", JSON.parse(localStorage.getItem("recentSearchHistory")));
 // loads on page
 renderSearchHistory();
+
